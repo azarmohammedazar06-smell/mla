@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Your MLA — Public Help Portal</title>
+  <style>
+    :root{
+      --bg1:#c9ccd3; --bg2:#dbdee4; --card:#fff; --primary:#0078d7; --text:#111;
+      --muted:#556; --danger:#d9534f;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:"Segoe UI", Roboto, Arial, sans-serif;
+      background:linear-gradient(180deg,var(--bg1) 0%,var(--bg2) 100%);
+      color:var(--text); -webkit-font-smoothing:antialiased;
+    }
+    .container{max-width:980px;margin:28px auto;padding:20px;}
+    header{display:flex;gap:16px;align-items:center;justify-content:space-between;}
+    h1{color:var(--primary);margin:0;font-size:20px}
+    .subtitle{color:var(--muted);font-size:13px;margin-top:4px}
+    .controls{display:flex;gap:10px;flex-wrap:wrap}
+    button{
+      border:0;padding:10px 14px;border-radius:8px;background:var(--primary);color:#fff;
+      cursor:pointer;font-size:14px;box-shadow:0 6px 14px rgba(0,0,0,0.08);
+    }
+    button.ghost{background:#fff;color:var(--primary);border:1px solid rgba(0,0,0,0.06)}
+    button.warn{background:var(--danger)}
+    main{display:grid;grid-template-columns:1fr;gap:18px;margin-top:18px}
+    .card{background:var(--card);border-radius:12px;padding:18px;box-shadow:0 6px 18px rgba(12,20,30,0.06)}
+    .row{display:flex;gap:12px;flex-wrap:wrap}
+    label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
+    select,input[type="text"],input[type="file"],textarea{
+      width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;font-size:14px;
+    }
+    textarea{min-height:90px;resize:vertical}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .full{grid-column:1/-1}
+    .small{width:100px}
+    .complaint-item{border:1px dashed #eee;padding:12px;border-radius:8px;display:flex;gap:12px;align-items:flex-start}
+    .complaint-meta{flex:1}
+    .meta-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+    .muted{color:var(--muted);font-size:12px}
+    .thumb{width:84px;height:64px;border-radius:6px;object-fit:cover;border:1px solid #eee}
+    .actions{display:flex;gap:8px}
+    .linkish{background:transparent;border:0;color:var(--primary);cursor:pointer;padding:6px 8px;border-radius:6px}
+    .empty{color:var(--muted);text-align:center;padding:28px}
+    @media(max-width:640px){ .form-grid{grid-template-columns:1fr} .thumb{width:72px;height:56px} }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>YOUR MLA — Public Help Portal</h1>
+        <div class="subtitle">Report public issues — saved locally & sent via WhatsApp</div>
+      </div>
+
+      <div class="controls">
+        <button onclick="showSection('form')">Report an Issue</button>
+        <button class="ghost" onclick="showSection('about')">About / Plans</button>
+        <button class="ghost" onclick="showSection('list')">View All Complaints</button>
+      </div>
+    </header>
+
+    <main id="main">
+      <!-- initial: form -->
+    </main>
+  </div>
+
+  <script>
+    /********** Configuration **********/
+    const WHATSAPP_NUMBER = "919483927300"; // country code +91 + user number (no + or spaces)
+    const STORAGE_KEY = "mla_complaints_v1";
+
+    /********** Utilities **********/
+    function qs(sel){return document.querySelector(sel)}
+    function el(tag, attrs={}, html=""){ const e=document.createElement(tag); Object.assign(e, attrs); if(html) e.innerHTML=html; return e; }
+    function nowISO(){ return new Date().toISOString(); }
+    function formatDate(iso){
+      const d=new Date(iso);
+      return d.toLocaleString(); // uses user's locale
+    }
+    function saveToStorage(list){ localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }
+    function loadFromStorage(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]") }catch(e){ return [] } }
+
+    /********** App rendering **********/
+    const main = qs("#main");
+
+    function showSection(name){
+      main.innerHTML = "";
+      if(name === "about") return renderAbout();
+      if(name === "list") return renderList();
+      return renderForm();
+    }
+
+    /********** Form & Submit **********/
+    function renderForm(){
+      const c = el("div", {className:"card"});
+      c.innerHTML = `
+        <h2>Report a Public Issue</h2>
+        <p class="muted">Fill details below — you can save & send via WhatsApp.</p>
+      `;
+
+      const form = el("form");
+      form.className = "form-grid";
+
+      // Fields
+      const categoryLabel = el("label", {innerText:"Issue Category"});
+      const category = el("select");
+      category.innerHTML = `<option value="">Select</option>
+        <option value="Health">Health</option>
+        <option value="Agriculture">Agriculture</option>
+        <option value="Education">Education</option>
+        <option value="Infrastructure">Infrastructure</option>
+        <option value="Other">Other</option>`;
+
+      const descLabel = el("label", {innerText:"Describe the Issue"});
+      const desc = el("textarea");
+      desc.placeholder = "Write your complaint...";
+
+      const ageLabel = el("label", {innerText:"Your Age Group"});
+      const age = el("select");
+      age.innerHTML = `<option value="">Select</option><option>18–30</option><option>30–45</option><option>45 and above</option>`;
+
+      const contactLabel = el("label", {innerText:"Preferred Contact Method (optional)"});
+      const contact = el("select");
+      contact.innerHTML = `<option value="">Select (optional)</option><option>Email</option><option>Phone Number</option><option>WhatsApp</option>`;
+
+      const contactValLabel = el("label", {innerText:"Contact Info (optional)"});
+      const contactVal = el("input"); contactVal.type = "text"; contactVal.placeholder = "email or phone";
+
+      const fileLabel = el("label", {innerText:"Upload Image (optional)"});
+      const file = el("input"); file.type = "file"; file.accept = "image/*";
+
+      const submitWrap = el("div", {className:"full"});
+      const submitBtn = el("button", {type:"submit", innerText:"Save & Open WhatsApp"});
+      submitBtn.style.marginTop = "8px";
+
+      // Assemble
+      form.appendChild(categoryLabel);
+      form.appendChild(category);
+
+      const descBlock = el("div", {className:"full"});
+      descBlock.appendChild(descLabel); descBlock.appendChild(desc);
+      form.appendChild(descBlock);
+
+      form.appendChild(ageLabel); form.appendChild(age);
+      form.appendChild(contactLabel); form.appendChild(contact);
+      form.appendChild(contactValLabel); form.appendChild(contactVal);
+      form.appendChild(fileLabel); form.appendChild(file);
+
+      submitWrap.appendChild(submitBtn);
+      form.appendChild(submitWrap);
+
+      // Handle file -> dataURL
+      function readFileAsDataURL(fileObj){
+        return new Promise((res, rej) => {
+          if(!fileObj) return res(null);
+          const reader = new FileReader();
+          reader.onload = () => res(reader.result);
+          reader.onerror = () => rej("file-error");
+          reader.readAsDataURL(fileObj);
+        });
+      }
+
+      form.onsubmit = async (ev) => {
+        ev.preventDefault();
+        // validate
+        if (!category.value) return alert("Please select an issue category.");
+        if (!desc.value.trim()) return alert("Please describe the issue.");
+
+        const imgFile = file.files[0];
+        let imgData = null;
+        if(imgFile){
+          // limit image size to avoid huge localStorage usage: if > 1.5MB warn and skip or compress (simple approach: warn)
+          if(imgFile.size > 1.6 * 1024 * 1024){
+            if(!confirm("Selected image is large (over ~1.6MB). Saving it may fail or slow things. Continue and save anyway?")) {
+              return;
+            }
+          }
+          try { imgData = await readFileAsDataURL(imgFile) } catch(e){ console.warn("file read failed", e); }
+        }
+
+        // compose complaint object
+        const complaint = {
+          id: Math.random().toString(36).slice(2,9),
+          createdAt: nowISO(),
+          category: category.value,
+          description: desc.value.trim(),
+          ageGroup: age.value || "",
+          contactMethod: contact.value || "",
+          contactInfo: contactVal.value.trim() || "",
+          imageData: imgData, // may be null
+        };
+
+        // save locally
+        const list = loadFromStorage();
+        list.unshift(complaint); // newest first
+        try {
+          saveToStorage(list);
+        } catch(e){
+          console.error(e);
+          alert("Saving failed (local storage full). Try removing some saved complaints first.");
+          return;
+        }
+
+        // create WhatsApp message
+        const parts = [
+          `Complaint ID: ${complaint.id}`,
+          `Category: ${complaint.category}`,
+          `Description: ${complaint.description}`,
+          complaint.ageGroup ? `Age group: ${complaint.ageGroup}` : "",
+          complaint.contactMethod ? `Contact via: ${complaint.contactMethod}` : "",
+          complaint.contactInfo ? `Contact info: ${complaint.contactInfo}` : "",
+          `Submitted at: ${formatDate(complaint.createdAt)}`,
+          "\n(Report sent from My MLA portal)"
+        ].filter(Boolean).join("\n");
+
+        // If image present we cannot attach via wa.me link — the user will need to attach manually.
+        const encoded = encodeURIComponent(parts);
+        const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encoded}`;
+
+        // notify user and open WhatsApp in new tab
+        if(confirm("Complaint saved locally. Open WhatsApp to send this complaint now?")) {
+          window.open(waUrl, "_blank");
+        } else {
+          // do nothing, user can send later from viewing list
+        }
+
+        // reset form
+        form.reset();
+        showSection('list');
+      };
+
+      c.appendChild(form);
+      main.appendChild(c);
+    }
+
+    /********** List / Manage saved complaints **********/
+    function renderList(){
+      const c = el("div", {className:"card"});
+      c.innerHTML = `<h2>Saved Complaints</h2><p class="muted">Saved in your browser only. Use the WhatsApp button to open a message pre-filled for sending.</p>`;
+      const list = loadFromStorage();
+
+      const container = el("div");
+      if(!list.length){
+        container.innerHTML = `<div class="empty">No complaints saved yet — submit one from "Report an Issue".</div>`;
+        c.appendChild(container); main.appendChild(c); return;
+      }
+
+      list.forEach(item => {
+        const row = el("div", {className:"complaint-item"});
+        const meta = el("div", {className:"complaint-meta"});
+        const top = el("div", {className:"meta-top"});
+        top.innerHTML = `<strong>${item.category}</strong> <div class="muted">${formatDate(item.createdAt)}</div>`;
+
+        const desc = el("div", {innerHTML:`<div style="margin:8px 0">${escapeHtml(item.description)}</div>`});
+        const misc = el("div", {className:"muted", innerText:
+          `${item.ageGroup ? "Age: "+item.ageGroup + " • " : ""}${item.contactMethod ? "Contact: "+item.contactMethod : ""}`});
+
+        const actions = el("div", {className:"actions"});
+        // WhatsApp open
+        const waBtn = el("button", {className:"linkish", innerText:"Open WhatsApp"});
+        waBtn.onclick = () => {
+          const parts = [
+            `Complaint ID: ${item.id}`,
+            `Category: ${item.category}`,
+            `Description: ${item.description}`,
+            item.ageGroup ? `Age group: ${item.ageGroup}` : "",
+            item.contactMethod ? `Contact via: ${item.contactMethod}` : "",
+            item.contactInfo ? `Contact info: ${item.contactInfo}` : "",
+            `Submitted at: ${formatDate(item.createdAt)}`,
+            "\n(Report sent from My MLA portal)"
+          ].filter(Boolean).join("\n");
+          const encoded = encodeURIComponent(parts);
+          const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encoded}`;
+          window.open(waUrl, "_blank");
+        };
+
+        // View details
+        const viewBtn = el("button", {className:"ghost", innerText:"Details"});
+        viewBtn.onclick = () => showDetailsModal(item);
+
+        // Delete
+        const delBtn = el("button", {className:"warn", innerText:"Delete"});
+        delBtn.onclick = () => {
+          if(!confirm("Delete this saved complaint?")) return;
+          const newList = loadFromStorage().filter(i => i.id !== item.id);
+          saveToStorage(newList);
+          renderList(); // re-render
+        };
+
+        actions.appendChild(waBtn);
+        actions.appendChild(viewBtn);
+        actions.appendChild(delBtn);
+
+        meta.appendChild(top);
+        meta.appendChild(desc);
+        meta.appendChild(misc);
+        meta.appendChild(actions);
+
+        row.appendChild(meta);
+
+        if(item.imageData){
+          const img = el("img");
+          img.src = item.imageData;
+          img.className = "thumb";
+          img.alt = "uploaded image";
+          row.appendChild(img);
+        }
+
+        container.appendChild(row);
+        container.appendChild(el("div", {style:"height:10px"}));
+      });
+
+      c.appendChild(container);
+      main.appendChild(c);
+
+      // helper: details modal (simple)
+      function showDetailsModal(item){
+        const modal = el("div", {style:"position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:9999"});
+        const box = el("div", {className:"card", style:"max-width:720px;width:94%;max-height:86vh;overflow:auto"});
+        box.innerHTML = `<h3>Complaint Details</h3>
+          <div style="margin-bottom:8px"><strong>ID:</strong> ${item.id}</div>
+          <div style="margin-bottom:8px"><strong>Category:</strong> ${item.category}</div>
+          <div style="margin-bottom:8px"><strong>Submitted:</strong> ${formatDate(item.createdAt)}</div>
+          <div style="margin-bottom:8px"><strong>Description:</strong><div style="margin-top:6px">${escapeHtml(item.description)}</div></div>
+          <div style="margin-bottom:8px"><strong>Age group:</strong> ${item.ageGroup || "-"}</div>
+          <div style="margin-bottom:8px"><strong>Contact method:</strong> ${item.contactMethod || "-"} ${item.contactInfo ? " / "+escapeHtml(item.contactInfo) : ""}</div>
+        `;
+        if(item.imageData){
+          const img = el("img"); img.src = item.imageData; img.style.maxWidth="100%"; img.style.borderRadius="8px"; img.style.marginTop="10px";
+          box.appendChild(img);
+        }
+        const close = el("div", {style:"display:flex;justify-content:flex-end;margin-top:10px"});
+        const closeBtn = el("button", {innerText:"Close"}); closeBtn.onclick = () => modal.remove();
+        close.appendChild(closeBtn);
+        box.appendChild(close);
+        modal.appendChild(box);
+        document.body.appendChild(modal);
+      }
+    }
+
+    /********** About / plans **********/
+    function renderAbout(){
+      const c = el("div", {className:"card"});
+      c.innerHTML = `
+        <h2>About & Our Plans</h2>
+        <p class="muted">We act to improve local life through infrastructure, healthcare, education and digital services.</p>
+        <ul>
+          <li>Improve roads & public transport</li>
+          <li>Upgrade primary healthcare centers</li>
+          <li>Support farm & agriculture programs</li>
+          <li>Expand digital grievance redressal and transparency</li>
+        </ul>
+        <p class="muted">Saved complaints are stored only on your device. Use "Open WhatsApp" to send a report to the MLA office (WhatsApp message must be sent manually by you).</p>
+      `;
+      main.appendChild(c);
+    }
+
+
+    function escapeHtml(text){
+      if(!text) return "";
+      return text.replace(/[&<>"']/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[m]; });
+    }
+
+    // initial view
+    showSection('form');
+  </script>
+</body>
+</html>
+
