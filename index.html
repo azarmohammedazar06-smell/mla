@@ -89,7 +89,7 @@
         contactInfo: "Contact Info (optional)",
         uploadImg: "Upload Image (optional)",
         uploadVid: "Upload Video (optional)",
-        submit: "Save & Open WhatsApp",
+        submit: "Save & Register Your Complient",
         aboutTitle: "About",
         aboutText: "This portal helps citizens report public issues directly to MLA’s office through WhatsApp.",
         noComplaints: "No complaints yet.",
@@ -163,7 +163,7 @@
 
       const contactLabel=el("label",{innerText:t.contactMethod});
       const contact=el("select");
-      contact.innerHTML=`<option value="">Select</option><option>Email</option><option>Phone</option><option>WhatsApp</option>`;
+      contact.innerHTML=`<option value="">Select</option><option>WhatsApp</option>`;
 
       const contactValLabel=el("label",{innerText:t.contactInfo});
       const contactVal=el("input",{type:"text",placeholder:t.contactInfo});
