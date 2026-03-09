@@ -1,171 +1,377 @@
 <!DOCTYPE html>
 <html lang="{{ lang }}">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>{{ t.title }}</title>
-  <style>
-    :root{--bg1:#c9ccd3; --bg2:#dbdee4; --card:#fff; --primary:#0078d7; --text:#111; --muted:#556; --ok:#2e7d32; --danger:#b71c1c;}
-    *{box-sizing:border-box}
-    body{margin:0;font-family:"Segoe UI",Roboto,Arial,sans-serif;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:var(--text)}
-    .container{max-width:980px;margin:28px auto;padding:20px}
-    header{display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
-    h1{color:var(--primary);margin:0;font-size:22px}.subtitle{color:var(--muted);font-size:13px;margin-top:4px}
-    .controls{display:flex;gap:10px;flex-wrap:wrap}button,a.btn{border:0;padding:10px 14px;border-radius:8px;background:var(--primary);color:#fff;cursor:pointer;font-size:14px;text-decoration:none}
-    a.ghost{background:#fff;color:var(--primary);border:1px solid rgba(0,0,0,0.06)}
-    select.lang{padding:8px 10px;border-radius:8px;border:1px solid #ccc;background:#fff;font-size:14px;cursor:pointer}
-    main{display:grid;grid-template-columns:1fr;gap:18px;margin-top:18px}.card{background:var(--card);border-radius:12px;padding:18px;box-shadow:0 6px 18px rgba(12,20,30,0.06)}
-    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.full{grid-column:1/-1}
-    label{font-weight:500;margin-bottom:4px;display:block}textarea,input,select{width:100%;padding:8px 10px;border-radius:6px;border:1px solid #ccc;font-size:14px}
-    .thumb{width:84px;height:64px;object-fit:cover;border-radius:6px;border:1px solid #eee;margin-top:6px}.vid-thumb{width:120px;height:80px;object-fit:cover;border-radius:6px;border:1px solid #eee;margin-top:6px}
-    .row{border:1px dashed #ccc;padding:10px;margin:10px 0;border-radius:8px}.status{font-size:12px;padding:2px 8px;border-radius:999px;background:#eef3ff;color:#335}
-    .error{background:#fdecea;color:var(--danger);padding:10px;border-radius:8px;margin-bottom:12px}
-    .filters{display:grid;grid-template-columns:1fr 2fr auto auto;gap:8px;align-items:end;margin-bottom:12px}
-    .actions{display:flex;gap:8px;align-items:center}
-    @media(max-width:640px){.form-grid,.filters{grid-template-columns:1fr}}
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>{{ t.title }}</title>
+
+<style>
+
+:root{
+--bg1:#c9ccd3;
+--bg2:#dbdee4;
+--card:#fff;
+--primary:#0078d7;
+--text:#111;
+--muted:#556;
+--ok:#2e7d32;
+--danger:#b71c1c;
+}
+
+*{box-sizing:border-box}
+
+body{
+margin:0;
+font-family:"Segoe UI",Roboto,Arial,sans-serif;
+background:linear-gradient(180deg,var(--bg1),var(--bg2));
+color:var(--text);
+}
+
+.container{
+max-width:980px;
+margin:28px auto;
+padding:20px;
+}
+
+header{
+display:flex;
+gap:16px;
+align-items:center;
+justify-content:space-between;
+flex-wrap:wrap;
+}
+
+h1{
+color:var(--primary);
+margin:0;
+font-size:22px
+}
+
+.subtitle{
+color:var(--muted);
+font-size:13px;
+margin-top:4px
+}
+
+.controls{
+display:flex;
+gap:10px;
+flex-wrap:wrap
+}
+
+button,a.btn{
+border:0;
+padding:10px 14px;
+border-radius:8px;
+background:var(--primary);
+color:#fff;
+cursor:pointer;
+font-size:14px;
+text-decoration:none
+}
+
+a.ghost{
+background:#fff;
+color:var(--primary);
+border:1px solid rgba(0,0,0,0.06)
+}
+
+select.lang{
+padding:8px 10px;
+border-radius:8px;
+border:1px solid #ccc;
+background:#fff;
+font-size:14px;
+cursor:pointer
+}
+
+main{
+display:grid;
+grid-template-columns:1fr;
+gap:18px;
+margin-top:18px
+}
+
+.card{
+background:var(--card);
+border-radius:12px;
+padding:18px;
+box-shadow:0 6px 18px rgba(12,20,30,0.06)
+}
+
+.form-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:12px
+}
+
+.full{
+grid-column:1/-1
+}
+
+label{
+font-weight:500;
+margin-bottom:4px;
+display:block
+}
+
+textarea,input,select{
+width:100%;
+padding:8px 10px;
+border-radius:6px;
+border:1px solid #ccc;
+font-size:14px
+}
+
+.thumb{
+width:84px;
+height:64px;
+object-fit:cover;
+border-radius:6px;
+border:1px solid #eee;
+margin-top:6px
+}
+
+.vid-thumb{
+width:120px;
+height:80px;
+object-fit:cover;
+border-radius:6px;
+border:1px solid #eee;
+margin-top:6px
+}
+
+.row{
+border:1px dashed #ccc;
+padding:10px;
+margin:10px 0;
+border-radius:8px
+}
+
+.status{
+font-size:12px;
+padding:2px 8px;
+border-radius:999px;
+background:#eef3ff;
+color:#335
+}
+
+.error{
+background:#fdecea;
+color:var(--danger);
+padding:10px;
+border-radius:8px;
+margin-bottom:12px
+}
+
+.filters{
+display:grid;
+grid-template-columns:1fr 2fr auto auto;
+gap:8px;
+align-items:end;
+margin-bottom:12px
+}
+
+.actions{
+display:flex;
+gap:8px;
+align-items:center
+}
+
+@media(max-width:640px){
+.form-grid,.filters{grid-template-columns:1fr}
+}
+
+</style>
 </head>
+
 <body>
-  <div class="container">
-    <header>
-      <div>
-        <h1>{{ t.title }}</h1>
-        <div class="subtitle">{{ t.subtitle }}</div>
-      </div>
-      <div class="controls">
-        <form method="get">
-          <input type="hidden" name="section" value="{{ section }}" />
-          <select name="lang" class="lang" onchange="this.form.submit()">
-            <option value="en" {% if lang=='en' %}selected{% endif %}>English</option>
-            <option value="kn" {% if lang=='kn' %}selected{% endif %}>ಕನ್ನಡ</option>
-          </select>
-        </form>
-        <a class="btn" href="/?section=form&lang={{ lang }}">{{ t.report }}</a>
-        <a class="btn ghost" href="/?section=about&lang={{ lang }}">{{ t.about }}</a>
-        <a class="btn ghost" href="/?section=list&lang={{ lang }}">{{ t.list }}</a>
-        <a class="btn ghost" href="/complaints/export" target="_blank">{{ t.export }}</a>
-      </div>
-    </header>
 
-    <main>
-      {% if section == 'about' %}
-      <div class="card">
-        <h2>{{ t.aboutTitle }}</h2>
-        <p>{{ t.aboutText }}</p>
-      </div>
-      {% elif section == 'list' %}
-      <div class="card">
-        <h2>{{ t.list }}</h2>
+<div class="container">
 
-        <form method="get" class="filters">
-          <input type="hidden" name="section" value="list" />
-          <input type="hidden" name="lang" value="{{ lang }}" />
-          <div>
-            <label>{{ t.category }}</label>
-            <select name="category">
-              <option value="">All</option>
-              {% for c in categories %}
-              <option value="{{ c }}" {% if selected_category==c %}selected{% endif %}>{{ c }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div>
-            <label>{{ t.search }}</label>
-            <input type="text" name="search" value="{{ search }}" />
-          </div>
-          <button type="submit">{{ t.apply }}</button>
-          <a class="btn ghost" href="/?section=list&lang={{ lang }}">{{ t.clear }}</a>
-        </form>
+<header>
 
-        {% if complaints %}
-          {% for item in complaints %}
-          <div class="row">
-            <strong>{{ item.category }}</strong>
-            <span class="status">{{ t.status }}: {{ item.status or t.statusOptions[0] }}</span><br>
-            {{ item.description }}<br>
-            <small>{{ item.created_at }}</small><br>
+<div>
+<h1>{{ t.title }}</h1>
+<div class="subtitle">{{ t.subtitle }}</div>
+</div>
 
-            {% if item.image_path %}<img src="{{ url_for('static', filename=item.image_path) }}" class="thumb" />{% endif %}
-            {% if item.video_path %}<video src="{{ url_for('static', filename=item.video_path) }}" class="vid-thumb" controls></video>{% endif %}
+<div class="controls">
 
-            <form method="post" action="/complaints/{{ item.id }}/status" class="actions">
-              <input type="hidden" name="lang" value="{{ lang }}" />
-              <input type="hidden" name="category" value="{{ selected_category }}" />
-              <input type="hidden" name="search" value="{{ search }}" />
-              <select name="status">
-                {% for s in t.statusOptions %}
-                <option value="{{ s }}" {% if (item.status or t.statusOptions[0]) == s %}selected{% endif %}>{{ s }}</option>
-                {% endfor %}
-              </select>
-              <button type="submit">{{ t.apply }}</button>
-            </form>
-          </div>
-          {% endfor %}
-        {% else %}
-          <p>{{ t.noComplaints }}</p>
-        {% endif %}
-      </div>
-      {% else %}
-      <div class="card">
-        <h2>{{ t.reportTitle }}</h2>
-        <p>{{ t.reportDesc }}</p>
+<form method="get">
+<input type="hidden" name="section" value="{{ section }}" />
+<select name="lang" class="lang" onchange="this.form.submit()">
+<option value="en" {% if lang=='en' %}selected{% endif %}>English</option>
+<option value="kn" {% if lang=='kn' %}selected{% endif %}>ಕನ್ನಡ</option>
+</select>
+</form>
 
-        {% if error %}<div class="error">{{ error }}</div>{% endif %}
+<a class="btn" href="/?section=form&lang={{ lang }}">{{ t.report }}</a>
+<a class="btn ghost" href="/?section=about&lang={{ lang }}">{{ t.about }}</a>
+<a class="btn ghost" href="/?section=list&lang={{ lang }}">{{ t.list }}</a>
+<a class="btn ghost" href="/complaints/export" target="_blank">{{ t.export }}</a>
 
-        <form class="form-grid" method="post" action="/complaints" enctype="multipart/form-data">
-          <input type="hidden" name="lang" value="{{ lang }}" />
-          <div>
-            <label>{{ t.category }}</label>
-            <select name="category" required>
-              <option value="">Select</option>
-              {% for c in categories %}
-              <option>{{ c }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div>
-            <label>{{ t.age }}</label>
-            <select name="age_group">
-              <option value="">Select</option>
-              {% for age in age_groups %}
-              <option>{{ age }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="full">
-            <label>{{ t.desc }}</label>
-            <textarea name="description" required></textarea>
-          </div>
-          <div>
-            <label>{{ t.contactMethod }}</label>
-            <select name="contact_method"><option value="">Select</option><option>WhatsApp</option><option>Phone</option></select>
-          </div>
-          <div>
-            <label>{{ t.contactInfo }}</label>
-            <input type="text" name="contact_info" />
-          </div>
-          <div>
-            <label>{{ t.uploadImg }}</label>
-            <input type="file" name="image" accept="image/*" />
-          </div>
-          <div>
-            <label>{{ t.uploadVid }}</label>
-            <input type="file" name="video" accept="video/*" />
-          </div>
-          <div class="full"><button type="submit">{{ t.submit }}</button></div>
-        </form>
-      </div>
-      {% endif %}
-    </main>
-  </div>
+</div>
+</header>
 
-  {% if wa %}
-  <script>
-    const url = {{ wa|tojson }};
-    if (confirm({{ t.saved|tojson }})) {
-      window.open(url, "_blank");
-    }
-  </script>
-  {% endif %}
+<main>
+
+{% if section == 'about' %}
+
+<div class="card">
+<h2>{{ t.aboutTitle }}</h2>
+<p>{{ t.aboutText }}</p>
+</div>
+
+{% elif section == 'list' %}
+
+<div class="card">
+
+<h2>{{ t.list }}</h2>
+
+<form method="get" class="filters">
+
+<input type="hidden" name="section" value="list" />
+<input type="hidden" name="lang" value="{{ lang }}" />
+
+<div>
+<label>{{ t.category }}</label>
+<select name="category">
+<option value="">All</option>
+{% for c in categories %}
+<option value="{{ c }}" {% if selected_category==c %}selected{% endif %}>{{ c }}</option>
+{% endfor %}
+</select>
+</div>
+
+<div>
+<label>{{ t.search }}</label>
+<input type="text" name="search" value="{{ search }}" />
+</div>
+
+<button type="submit">{{ t.apply }}</button>
+<a class="btn ghost" href="/?section=list&lang={{ lang }}">{{ t.clear }}</a>
+
+</form>
+
+{% if complaints %}
+
+{% for item in complaints %}
+
+<div class="row">
+
+<strong>{{ item.category }}</strong>
+<span class="status">{{ t.status }}: {{ item.status }}</span><br>
+
+{{ item.description }}<br>
+
+<small>{{ item.created_at }}</small><br>
+
+{% if item.image_path %}
+<img src="{{ url_for('static', filename=item.image_path) }}" class="thumb">
+{% endif %}
+
+{% if item.video_path %}
+<video src="{{ url_for('static', filename=item.video_path) }}" class="vid-thumb" controls></video>
+{% endif %}
+
+</div>
+
+{% endfor %}
+
+{% else %}
+
+<p>{{ t.noComplaints }}</p>
+
+{% endif %}
+
+</div>
+
+{% else %}
+
+<div class="card">
+
+<h2>{{ t.reportTitle }}</h2>
+<p>{{ t.reportDesc }}</p>
+
+{% if error %}
+<div class="error">{{ error }}</div>
+{% endif %}
+
+<form class="form-grid" method="post" action="/complaints" enctype="multipart/form-data">
+
+<input type="hidden" name="lang" value="{{ lang }}">
+
+<div>
+<label>{{ t.category }}</label>
+<select name="category" required>
+<option value="">Select</option>
+{% for c in categories %}
+<option>{{ c }}</option>
+{% endfor %}
+</select>
+</div>
+
+<div>
+<label>{{ t.age }}</label>
+<select name="age_group">
+<option value="">Select</option>
+{% for age in age_groups %}
+<option>{{ age }}</option>
+{% endfor %}
+</select>
+</div>
+
+<div class="full">
+<label>{{ t.desc }}</label>
+<textarea name="description" required></textarea>
+</div>
+
+<div>
+<label>{{ t.contactMethod }}</label>
+<select name="contact_method">
+<option value="">Select</option>
+<option>WhatsApp</option>
+<option>Phone</option>
+</select>
+</div>
+
+<div>
+<label>{{ t.contactInfo }}</label>
+<input type="text" name="contact_info">
+</div>
+
+<div>
+<label>{{ t.uploadImg }}</label>
+<input type="file" name="image" accept="image/*">
+</div>
+
+<div>
+<label>{{ t.uploadVid }}</label>
+<input type="file" name="video" accept="video/*">
+</div>
+
+<div class="full">
+<button type="submit">{{ t.submit }}</button>
+</div>
+
+</form>
+
+</div>
+
+{% endif %}
+
+</main>
+</div>
+
+{% if wa %}
+<script>
+const url = {{ wa|tojson }};
+if(confirm({{ t.saved|tojson }})){
+window.open(url,"_blank");
+}
+</script>
+{% endif %}
+
 </body>
 </html>

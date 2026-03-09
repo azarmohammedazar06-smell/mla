@@ -4,12 +4,10 @@ This project is a **Python Flask web app** version of the MLA Public Help Portal
 
 ## Run locally
 
-```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install flask
 python app.py
-```
 
 Open: http://127.0.0.1:5000
 
